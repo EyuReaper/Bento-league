@@ -6,24 +6,31 @@ import { useLayoutStore } from './stores/layout' // Corrected import path
 const layoutStore = useLayoutStore()
 
 // Computed property to get widgets from the store
-const widgets = computed(() => layoutStore.getWidgets())
+const widgets = computed(() => layoutStore.getWidgets)
 
 // Map widget component names to their actual async components
 const componentMap: Record<string, any> = {
   MatchHero: defineAsyncComponent(() => import('./components/widgets/MatchHero.vue')),
   NewsTicker: defineAsyncComponent(() => import('./components/widgets/NewsTicker.vue')),
   LiveStandings: defineAsyncComponent(() => import('./components/widgets/LiveStandings.vue')),
-  H2HComparison: defineAsyncComponent(() => import('./components/widgets/H2HComparison.vue'))
+  H2HComparison: defineAsyncComponent(() => import('./components/widgets/H2HComparison.vue')),
+  PlayerOfTheWeek: defineAsyncComponent(() => import('./components/widgets/PlayerOfTheWeek.vue')),
+  NewsSource: defineAsyncComponent(() => import('./components/widgets/NewsSource.vue')),
+  CurrentMatchNextGame: defineAsyncComponent(() => import('./components/widgets/CurrentMatchNextGame.vue')),
+  TransferMarket: defineAsyncComponent(() => import('./components/widgets/TransferMarket.vue')),
+  LeagueLogo: defineAsyncComponent(() => import('./components/widgets/LeagueLogo.vue')),
+  GraphicalSeasonView: defineAsyncComponent(() => import('./components/widgets/GraphicalSeasonView.vue')),
+  AdPlacement: defineAsyncComponent(() => import('./components/widgets/AdPlacement.vue'))
 }
 </script>
 
 <template>
-  <div class="min-h-screen p-4 sm:p-6 lg:p-8 bg-stadium-950 text-white">
+  <div class="min-h-screen p-4 sm:p-6 lg:p-8 bg-stadium-900/40 backdrop-blur-xl text-white font-sans">
     <header class="mb-8">
-      <h1 class="text-4xl md:text-5xl font-bold text-slate-100 mb-2">
+      <h1 class="text-4xl md:text-5xl font-bold text-white-100 mb-2">
         ⚽ Bento League
       </h1>
-      <p class="text-slate-400 text-sm">Your premium football dashboard</p>
+      <p class="text-slate-100 text-sm">Your premium football dashboard</p>
     </header>
 
     <div class="bento-grid">

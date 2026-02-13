@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell
+} from '@/components/ui/table'
 
 interface Team {
   position: number
@@ -20,35 +29,46 @@ const standings = ref<Team[]>([
 </script>
 
 <template>
-  <div class="bento-card h-full flex flex-col bg-stadium-900 rounded-lg p-4">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-bold uppercase tracking-wider text-slate-100">Premier League</h3>
-      <span class="text-xs text-electric-emerald">Live</span>
-    </div>
-
-    <div class="flex-1 overflow-y-auto">
-      <div
-        v-for="team in standings"
-        :key="team.position"
-        class="flex items-center gap-3 py-2 border-b border-slate-700 last:border-0 hover:bg-slate-700/30 transition-colors"
-      >
-        <span class="text-xs font-bold text-slate-400 w-6">{{ team.position }}</span>
-        <span class="text-xl">{{ team.logo }}</span>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-white truncate">{{ team.name }}</p>
-          <p class="text-xs text-slate-400">{{ team.played }} played</p>
-        </div>
-        <div class="text-right">
-          <p class="text-sm font-bold text-white">{{ team.points }}</p>
-          <p class="text-xs text-slate-400">{{ team.goalDiff > 0 ? '+' : '' }}{{ team.goalDiff }}</p>
-        </div>
+  <Card class="h-full flex flex-col bg-stadium-900 rounded-lg p-4">
+    <CardHeader class="pb-4">
+      <div class="flex items-center justify-between">
+        <CardTitle class="text-sm font-bold uppercase tracking-wider text-slate-100">
+          Premier League
+        </CardTitle>
+        <span class="text-xs text-electric-emerald">Live</span>
       </div>
-    </div>
+    </CardHeader>
 
-    <div class="mt-4 text-center">
+    <CardContent class="flex-1 overflow-y-auto px-0 py-0">
+      <Table>
+        <TableHeader>
+          <TableRow class="hover:bg-transparent">
+            <TableHead class="w-[30px]">#</TableHead>
+            <TableHead class="min-w-[150px]">Team</TableHead>
+            <TableHead class="text-right">P</TableHead>
+            <TableHead class="text-right">GD</TableHead>
+            <TableHead class="text-right">Pts</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="team in standings" :key="team.position">
+            <TableCell class="font-medium text-slate-400">{{ team.position }}</TableCell>
+            <TableCell class="flex items-center gap-2">
+              <span class="text-xl">{{ team.logo }}</span>
+              <p class="text-sm font-medium text-white truncate">{{ team.name }}</p>
+            </TableCell>
+            <TableCell class="text-right">{{ team.played }}</TableCell>
+            <TableCell class="text-right">{{ team.goalDiff > 0 ? '+' : '' }}{{ team.goalDiff }}</TableCell>
+            <TableCell class="text-right font-bold text-white">{{ team.points }}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </CardContent>
+
+    <CardFooter class="pt-4 flex justify-center">
       <button class="text-xs text-electric-emerald hover:text-electric-emerald/80 transition-colors">
         View Full Table →
       </button>
-    </div>
-  </div>
+    </CardFooter>
+  </Card>
 </template>
