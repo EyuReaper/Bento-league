@@ -1,59 +1,66 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 const homeTeam = ref({
-  name: 'Manchester City',
+  name: 'Man City',
+  short: 'MCI',
   logo: '🔵',
-  score: 2
+  score: 2,
+  color: '#6CABDD'
 })
 
 const awayTeam = ref({
   name: 'Liverpool',
+  short: 'LIV',
   logo: '🔴',
-  score: 2
+  score: 2,
+  color: '#C8102E'
 })
 
 const matchStatus = ref('LIVE')
 const matchTime = ref("67'")
+const competition = ref('Premier League')
+const venue = ref('Etihad Stadium')
 </script>
 
 <template>
-  <Card class="h-full flex flex-col justify-between bg-stadium-900 rounded-lg p-4">
-    <CardHeader class="flex flex-row justify-between items-start pb-4">
-      <div class="live-indicator flex items-center">
-        <span class="inline-block w-2 h-2 rounded-full bg-electric-emerald animate-pulse mr-1"></span>
-        <span class="text-white">{{ matchStatus }}</span>
+  <div class="h-full flex flex-col p-8 group/hero">
+    <div class="flex justify-between items-center mb-10">
+      <div class="flex flex-col">
+        <span class="bento-tag">Premier League</span>
+        <h2 class="bento-title uppercase">Matchday 24</h2>
       </div>
-      <span class="text-electric-emerald font-bold text-lg">{{ matchTime }}</span>
-    </CardHeader>
-
-    <CardContent class="flex-1 flex items-center justify-between gap-8 py-0">
-      <div class="flex-1 text-center">
-        <div class="text-6xl mb-3">{{ homeTeam.logo }}</div>
-        <h3 class="text-xl font-bold text-white">{{ homeTeam.name }}</h3>
+      <div class="live-indicator">
+        <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+        <span>Live 67'</span>
       </div>
+    </div>
 
-      <div class="flex flex-col items-center">
-        <div class="text-5xl font-bold text-white">
-          {{ homeTeam.score }} - {{ awayTeam.score }}
+    <div class="flex-1 flex items-center justify-between gap-4">
+      <div class="flex-1 flex flex-col items-center gap-6">
+        <div class="w-20 h-20 rounded-3xl bg-muted flex items-center justify-center text-5xl shadow-sm border border-border group-hover/hero:scale-110 group-hover/hero:rotate-3 transition-all duration-500">
+          🔵
         </div>
+        <div class="text-[11px] font-black uppercase tracking-widest opacity-60">Man City</div>
       </div>
 
-      <div class="flex-1 text-center">
-        <div class="text-6xl mb-3">{{ awayTeam.logo }}</div>
-        <h3 class="text-xl font-bold text-white">{{ awayTeam.name }}</h3>
+      <div class="text-6xl md:text-7xl font-black tracking-tighter tabular-nums text-foreground italic px-4">
+        2-2
       </div>
-    </CardContent>
 
-    <CardFooter class="flex flex-col items-center pt-4">
-      <div class="mt-4 text-center text-sm text-slate-200">
-        Premier League - Etihad Stadium
+      <div class="flex-1 flex flex-col items-center gap-6">
+        <div class="w-20 h-20 rounded-3xl bg-muted flex items-center justify-center text-5xl shadow-sm border border-border group-hover/hero:scale-110 group-hover/hero:-rotate-3 transition-all duration-500">
+          🔴
+        </div>
+        <div class="text-[11px] font-black uppercase tracking-widest opacity-60">Liverpool</div>
       </div>
-      <div class="mt-4 text-center">
-        <Button>View Details</Button>
-      </div>
-    </CardFooter>
-  </Card>
+    </div>
+
+    <div class="mt-10 flex items-center justify-between">
+      <div class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40 italic">Etihad Stadium</div>
+      <button class="px-6 py-3 rounded-2xl bg-foreground text-background text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95">Match Center</button>
+    </div>
+  </div>
 </template>

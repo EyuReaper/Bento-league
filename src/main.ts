@@ -1,12 +1,16 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { MotionPlugin } from '@vueuse/motion'
-import './assets/main.css'
+import '../style.css'
 import App from './App.vue'
+import { useThemeStore } from './stores/theme'
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(MotionPlugin)
+
+const themeStore = useThemeStore()
+themeStore.initTheme()
 
 app.mount('#app')

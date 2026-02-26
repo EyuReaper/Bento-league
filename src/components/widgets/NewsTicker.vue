@@ -1,74 +1,92 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const news = ref([
-  { id: 1, text: 'Transfer News: Arsenal signs midfielder from Real Madrid', icon: '⚡' },
-  { id: 2, text: 'Injury Update: Key striker out for 3 weeks', icon: '🚑' },
-  { id: 3, text: 'Breaking: Manager extends contract until 2027', icon: '📝' }
+  { id: 1, text: 'Arsenal finalize agreement for Real Madrid midfielder', category: 'TRANSFER', icon: '⚡' },
+  { id: 2, text: 'Injury Blow: Haaland sidelined for crucial UCL clash', category: 'INJURY', icon: '🚑' },
+  { id: 3, text: 'Official: Guardiola extends City stay until 2027', category: 'BREAKING', icon: '📝' },
+  { id: 4, text: 'Mbappé double secures narrow win for Los Blancos', category: 'MATCH DAY', icon: '⚽' }
 ])
 
 const currentIndex = ref(0)
+let timer: any = null
 
-const currentNewsItem = computed(() => {
-  return news.value.length > 0 ? news.value[currentIndex.value] : undefined;
-});
-
-setInterval(() => {
+const next = () => {
   currentIndex.value = (currentIndex.value + 1) % news.value.length
-}, 4000)
+}
+
+onMounted(() => {
+  timer = setInterval(next, 5000)
+})
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
+})
+
+const currentItem = computed(() => news.value[currentIndex.value])
 </script>
 
 <template>
-  <Card class="h-full flex flex-col bg-stadium-900 rounded-lg p-4">
-    <CardHeader class="pb-3">
-      <div class="flex items-center gap-2">
-        <div class="w-2 h-2 rounded-full bg-electric-emerald"></div>
-        <CardTitle class="text-sm font-bold uppercase tracking-wider text-slate-100">
-          Latest News
-        </CardTitle>
-      </div>
-    </CardHeader>
+  <div class="h-full flex flex-col p-5 relative overflow-hidden group/ticker">
+    <!-- Background Glow -->
+    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/5 blur-3xl rounded-full group-hover/ticker:bg-primary/15 transition-colors duration-700"></div>
 
-    <CardContent class="flex-1 flex items-center overflow-hidden py-0">
-      <transition name="slide-fade" mode="out-in">
-        <div v-if="currentNewsItem" :key="currentNewsItem.id" class="flex items-start gap-3">
-          <span class="text-2xl flex-shrink-0">{{ currentNewsItem.icon }}</span>
-          <p class="text-sm text-slate-100 line-clamp-3">{{ currentNewsItem.text }}</p>
-        </div>
-        <div v-else class="flex items-start gap-3">
-          <p class="text-sm text-slate-100">No news available.</p>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-2">
+        <div class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
+        <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-foreground">News Feed</h3>
+      </div>
+      <div class="flex gap-1">
+        <button 
+          v-for="(_, idx) in news" 
+          :key="idx"
+          @click="currentIndex = idx"
+          class="h-1 rounded-full transition-all duration-500 ease-out"
+          :class="idx === currentIndex ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/20 hover:bg-muted-foreground/40'"
+        ></button>
+      </div>
+    </div>
+
+    <div class="flex-1 relative">
+      <transition name="slide-up" mode="out-in">
+        <div :key="currentIndex" class="flex flex-col gap-3">
+          <div class="inline-flex">
+            <span class="text-[9px] font-black px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 tracking-wider">
+              {{ currentItem.category }}
+            </span>
+          </div>
+          <div class="flex items-start gap-4">
+            <span class="text-3xl filter drop-shadow-sm group-hover/ticker:scale-110 transition-transform duration-500">
+              {{ currentItem.icon }}
+            </span>
+            <p class="text-lg font-bold leading-tight tracking-tight text-foreground/90 group-hover/ticker:text-foreground transition-colors">
+              {{ currentItem.text }}
+            </p>
+          </div>
         </div>
       </transition>
-    </CardContent>
-
-    <div class="flex gap-1 mt-3">
-      <div
-        v-for="(item, idx) in news"
-        :key="item.id"
-        class="h-1 flex-1 rounded-full transition-all duration-300"
-        :class="idx === currentIndex ? 'bg-electric-emerald' : 'bg-slate-500'"
-      ></div>
     </div>
-  </Card>
+
+    <div class="mt-4 flex items-center justify-between text-[10px] font-bold text-muted-foreground/60">
+      <span class="uppercase tracking-widest">Source: Sky Sports</span>
+      <span class="tabular-nums">{{ currentIndex + 1 }} / {{ news.length }}</span>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.slide-fade-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.slide-fade-enter-from {
-  transform: translateX(20px);
+.slide-up-enter-from {
   opacity: 0;
+  transform: translateY(15px);
 }
 
-.slide-fade-leave-to {
-  transform: translateX(-20px);
+.slide-up-leave-to {
   opacity: 0;
+  transform: translateY(-15px);
 }
 </style>

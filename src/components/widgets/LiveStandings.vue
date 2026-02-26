@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { onMounted } from 'vue'
 import {
   Table,
   TableHeader,
@@ -9,66 +8,83 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table'
+import { useStandingsStore } from '@/stores/standings'
 
-interface Team {
-  position: number
-  name: string
-  logo: string
-  points: number
-  played: number
-  goalDiff: number
-}
+const standingsStore = useStandingsStore()
 
-const standings = ref<Team[]>([
-  { position: 1, name: 'Arsenal', logo: '🔴', points: 65, played: 28, goalDiff: 42 },
-  { position: 2, name: 'Man City', logo: '🔵', points: 63, played: 27, goalDiff: 38 },
-  { position: 3, name: 'Liverpool', logo: '🔴', points: 62, played: 28, goalDiff: 35 },
-  { position: 4, name: 'Aston Villa', logo: '🟣', points: 55, played: 28, goalDiff: 22 },
-  { position: 5, name: 'Tottenham', logo: '⚪', points: 53, played: 27, goalDiff: 18 }
-])
+onMounted(() => {
+  standingsStore.fetchStandings()
+})
 </script>
 
 <template>
-  <Card class="h-full flex flex-col bg-stadium-900 rounded-lg p-4">
-    <CardHeader class="pb-4">
-      <div class="flex items-center justify-between">
-        <CardTitle class="text-sm font-bold uppercase tracking-wider text-slate-100">
-          Premier League
-        </CardTitle>
-        <span class="text-xs text-electric-emerald">Live</span>
+  <div class="h-full flex flex-col p-5 group/standings">
+    <div class="bento-header justify-between flex-row items-center mb-4">
+      <div class="flex flex-col">
+        <span class="bento-tag">League</span>
+        <h2 class="bento-title uppercase">Live Standings</h2>
       </div>
-    </CardHeader>
+      <div class="w-8 h-8 rounded-xl bg-muted/50 flex items-center justify-center border border-border">
+        <span class="text-xs">📊</span>
+      </div>
+    </div>
 
-    <CardContent class="flex-1 overflow-y-auto px-0 py-0">
+    <div class="flex-1 overflow-y-auto custom-scrollbar">
       <Table>
         <TableHeader>
-          <TableRow class="hover:bg-transparent">
-            <TableHead class="w-[30px]">#</TableHead>
-            <TableHead class="min-w-[150px]">Team</TableHead>
-            <TableHead class="text-right">P</TableHead>
-            <TableHead class="text-right">GD</TableHead>
-            <TableHead class="text-right">Pts</TableHead>
+          <TableRow class="hover:bg-transparent border-none">
+            <TableHead class="h-8 w-6 text-[8px] font-black uppercase text-muted-foreground/50 text-center">#</TableHead>
+            <TableHead class="h-8 text-[8px] font-black uppercase text-muted-foreground/50">Club</TableHead>
+            <TableHead class="h-8 text-right text-[8px] font-black uppercase text-muted-foreground/50">GD</TableHead>
+            <TableHead class="h-8 text-right text-[8px] font-black uppercase text-muted-foreground/50">Pts</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="team in standings" :key="team.position">
-            <TableCell class="font-medium text-slate-400">{{ team.position }}</TableCell>
-            <TableCell class="flex items-center gap-2">
-              <span class="text-xl">{{ team.logo }}</span>
-              <p class="text-sm font-medium text-white truncate">{{ team.name }}</p>
+          <TableRow 
+            v-for="teamStanding in standingsStore.getStandings" 
+            :key="teamStanding.team.id"
+            class="group/row hover:bg-muted/50 border-none transition-colors"
+          >
+            <TableCell class="py-2 text-center">
+              <span class="text-[10px] font-black" :class="teamStanding.rank <= 4 ? 'text-primary' : 'text-muted-foreground/50'">
+                {{ teamStanding.rank }}
+              </span>
             </TableCell>
-            <TableCell class="text-right">{{ team.played }}</TableCell>
-            <TableCell class="text-right">{{ team.goalDiff > 0 ? '+' : '' }}{{ team.goalDiff }}</TableCell>
-            <TableCell class="text-right font-bold text-white">{{ team.points }}</TableCell>
+            <TableCell class="py-2">
+              <div class="flex items-center gap-2">
+                <img :src="teamStanding.team.logo" class="w-4 h-4 object-contain opacity-80 group-hover/row:opacity-100" />
+                <span class="text-[10px] font-bold text-foreground truncate max-w-[80px]">
+                  {{ teamStanding.team.name }}
+                </span>
+              </div>
+            </TableCell>
+            <TableCell class="py-2 text-right font-medium text-[9px] text-muted-foreground/60">
+              {{ teamStanding.goalsDiff }}
+            </TableCell>
+            <TableCell class="py-2 text-right">
+              <span class="text-[10px] font-black text-foreground">
+                {{ teamStanding.points }}
+              </span>
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
-    </CardContent>
-
-    <CardFooter class="pt-4 flex justify-center">
-      <button class="text-xs text-electric-emerald hover:text-electric-emerald/80 transition-colors">
-        View Full Table →
-      </button>
-    </CardFooter>
-  </Card>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+</style>
