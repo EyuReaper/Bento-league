@@ -26,6 +26,7 @@ const componentMap: Record<string, any> = {
   CurrentMatchNextGame: defineAsyncComponent(() => import('./components/widgets/CurrentMatchNextGame.vue')),
   TransferMarket: defineAsyncComponent(() => import('./components/widgets/TransferMarket.vue')),
   LeagueLogo: defineAsyncComponent(() => import('./components/widgets/LeagueLogo.vue')),
+  TeamOfTheWeek: defineAsyncComponent(() => import('./components/widgets/TeamOfTheWeek.vue')),
   GraphicalSeasonView: defineAsyncComponent(() => import('./components/widgets/GraphicalSeasonView.vue')),
   AdPlacement: defineAsyncComponent(() => import('./components/widgets/AdPlacement.vue')),
   Predictions: defineAsyncComponent(() => import('./components/widgets/Predictions.vue')),
