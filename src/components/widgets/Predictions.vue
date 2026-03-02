@@ -1,9 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, watch } from 'vue'
+import { useFixturesStore } from '@/stores/fixtures'
+import { usePredictionsStore } from '@/stores/predictions'
 
-const homeWin = ref(42)
-const draw = ref(28)
-const awayWin = ref(30)
+const fixturesStore = useFixturesStore()
+const predictionsStore = usePredictionsStore()
+
+const match = computed(() => fixturesStore.nextMatch)
+
+watch(match, (newMatch) => {
+  if (newMatch) {
+    predictionsStore.fetchPredictions(newMatch.fixture.id)
+  }
+}, { immediate: true })
+
+const homeWin = computed(() => parseInt(predictionsStore.prediction?.predictions?.percent?.home || '33%'))
+const draw = computed(() => parseInt(predictionsStore.prediction?.predictions?.percent?.draw || '33%'))
+const awayWin = computed(() => parseInt(predictionsStore.prediction?.predictions?.percent?.away || '33%'))
 </script>
 
 <template>
@@ -18,7 +31,7 @@ const awayWin = ref(30)
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col justify-center gap-6">
+    <div v-if="predictionsStore.prediction" class="flex-1 flex flex-col justify-center gap-6">
       <div class="space-y-3">
         <div class="flex justify-between items-end">
           <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Home Win</span>
@@ -49,9 +62,13 @@ const awayWin = ref(30)
         </div>
       </div>
     </div>
+    
+    <div v-else class="flex-1 flex items-center justify-center">
+       <p class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Analyzing probabilities...</p>
+    </div>
 
     <div class="mt-8 text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest text-center italic">
-      Based on 1.2M simulated outcomes
+      Based on {{ predictionsStore.prediction ? 'Live AI analysis' : 'Historical data' }}
     </div>
   </div>
 </template>

@@ -1,13 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useStandingsStore } from '@/stores/standings'
 
-const seasonProgress = ref(65)
-const form = ref(['W', 'W', 'D', 'W', 'L', 'W', 'W'])
-const stats = ref([
-  { label: 'Win Rate', value: '72%' },
-  { label: 'Clean Sheets', value: '12' },
-  { label: 'Avg Goals', value: '2.4' }
-])
+const standingsStore = useStandingsStore()
+
+onMounted(() => {
+  if (standingsStore.standings.length === 0) {
+    standingsStore.fetchStandings()
+  }
+})
+
+// Derive top team's stats for the season view
+const topTeam = computed(() => standingsStore.getStandings[0] || null)
+
+const seasonProgress = computed(() => {
+  if (!topTeam.value) return 0
+  const played = topTeam.value.all?.played || 0
+  return Math.round((played / 38) * 100)
+})
+
+const form = computed(() => {
+  if (!topTeam.value) return []
+  return (topTeam.value.form || '').split('')
+})
+
+const stats = computed(() => {
+  if (!topTeam.value) return []
+  return [
+    { label: 'Win Rate', value: `${Math.round(((topTeam.value.all?.win || 0) / (topTeam.value.all?.played || 1)) * 100)}%` },
+    { label: 'GD', value: topTeam.value.goalsDiff || '0' },
+    { label: 'Points', value: topTeam.value.points || '0' }
+  ]
+})
 </script>
 
 <template>
@@ -17,7 +41,7 @@ const stats = ref([
         <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Campaign</h3>
         <h2 class="text-xs font-bold text-foreground">Season Progress</h2>
       </div>
-      <div class="text-[10px] font-black text-primary tabular-nums bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+      <div v-if="seasonProgress > 0" class="text-[10px] font-black text-primary tabular-nums bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
         {{ seasonProgress }}% COMPLETE
       </div>
     </div>
@@ -36,7 +60,7 @@ const stats = ref([
     <div class="flex-1 flex flex-col justify-center">
       <div class="flex items-center justify-between mb-4">
         <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Recent Form</span>
-        <div class="flex gap-1.5">
+        <div class="flex gap-1.5" v-if="form.length > 0">
           <div 
             v-for="(res, i) in form" 
             :key="i"
@@ -50,6 +74,7 @@ const stats = ref([
             {{ res }}
           </div>
         </div>
+        <div v-else class="text-[10px] font-black text-muted-foreground/40 italic">N/A</div>
       </div>
 
       <!-- Quick Stats -->

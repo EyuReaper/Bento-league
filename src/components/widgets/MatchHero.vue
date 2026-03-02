@@ -28,12 +28,12 @@ const matchDay = computed(() => {
     <template v-if="match">
       <div class="flex items-center justify-between mb-10">
         <div class="flex flex-col">
-          <span class="bento-tag">{{ match.league.name }}</span>
+          <span class="bento-tag">{{ match.league?.name || 'League' }}</span>
           <h2 class="uppercase bento-title">{{ matchDay }}</h2>
         </div>
-        <div class="live-indicator" v-if="match.fixture.status.short !== 'FT'">
+        <div class="live-indicator" v-if="match.fixture?.status?.short !== 'FT'">
           <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
-          <span>{{ match.fixture.status.elapsed }}'</span>
+          <span>{{ match.fixture?.status?.elapsed || 0 }}'</span>
         </div>
         <div v-else class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
           Finished
@@ -43,30 +43,30 @@ const matchDay = computed(() => {
       <div class="flex items-center justify-between flex-1 gap-4">
         <div class="flex flex-col items-center flex-1 gap-6">
           <div class="flex items-center justify-center w-20 h-20 transition-all duration-500 border shadow-sm rounded-3xl bg-muted border-border group-hover/hero:scale-110 group-hover/hero:rotate-3 p-4">
-            <img :src="match.teams.home.logo" :alt="match.teams.home.name" class="w-full h-full object-contain" />
+            <img :src="match.teams?.home?.logo" :alt="match.teams?.home?.name" class="w-full h-full object-contain" />
           </div>
           <div class="text-[11px] font-black uppercase tracking-widest opacity-60 text-center truncate max-w-[100px]">
-            {{ match.teams.home.name }}
+            {{ match.teams?.home?.name || 'Home' }}
           </div>
         </div>
 
         <div class="px-4 text-5xl italic font-black tracking-tighter md:text-6xl tabular-nums text-foreground">
-          {{ match.goals.home }} - {{ match.goals.away }}
+          {{ match.goals?.home ?? 0 }} - {{ match.goals?.away ?? 0 }}
         </div>
 
         <div class="flex flex-col items-center flex-1 gap-6">
           <div class="flex items-center justify-center w-20 h-20 transition-all duration-500 border shadow-sm rounded-3xl bg-muted border-border group-hover/hero:scale-110 group-hover/hero:-rotate-3 p-4">
-            <img :src="match.teams.away.logo" :alt="match.teams.away.name" class="w-full h-full object-contain" />
+            <img :src="match.teams?.away?.logo" :alt="match.teams?.away?.name" class="w-full h-full object-contain" />
           </div>
           <div class="text-[11px] font-black uppercase tracking-widest opacity-60 text-center truncate max-w-[100px]">
-            {{ match.teams.away.name }}
+            {{ match.teams?.away?.name || 'Away' }}
           </div>
         </div>
       </div>
 
       <div class="flex items-center justify-between mt-10">
         <div class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40 italic">
-          {{ match.fixture.venue.name }}
+          {{ match.fixture?.venue?.name || 'Stadium' }}
         </div>
         <button class="px-6 py-3 text-xs font-black tracking-widest uppercase transition-all shadow-xl rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white active:scale-95">
           Match Center

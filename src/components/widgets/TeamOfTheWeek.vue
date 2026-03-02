@@ -1,19 +1,38 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted } from 'vue'
+import { usePlayersStore } from '@/stores/players'
 
-const players = ref([
-  { id: 1, name: 'Haaland', pos: 'top-[15%] left-[50%]', role: 'ST' },
-  { id: 2, name: 'Salah', pos: 'top-[25%] left-[20%]', role: 'RW' },
-  { id: 3, name: 'Saka', pos: 'top-[25%] left-[80%]', role: 'LW' },
-  { id: 4, name: 'Rodri', pos: 'top-[45%] left-[50%]', role: 'CDM' },
-  { id: 5, name: 'De Bruyne', pos: 'top-[40%] left-[25%]', role: 'CAM' },
-  { id: 6, name: 'Rice', pos: 'top-[40%] left-[75%]', role: 'CM' },
-  { id: 7, name: 'Walker', pos: 'top-[70%] left-[15%]', role: 'RB' },
-  { id: 8, name: 'Saliba', pos: 'top-[75%] left-[40%]', role: 'CB' },
-  { id: 9, name: 'Van Dijk', pos: 'top-[75%] left-[60%]', role: 'CB' },
-  { id: 10, name: 'Robertson', pos: 'top-[70%] left-[85%]', role: 'LB' },
-  { id: 11, name: 'Raya', pos: 'top-[88%] left-[50%]', role: 'GK' },
-])
+const playersStore = usePlayersStore()
+
+onMounted(() => {
+  if (playersStore.totw.length === 0) {
+    playersStore.fetchTopPlayers()
+  }
+})
+
+// Hardcoded positions for 4-3-3 formation
+const positions = [
+  'top-[15%] left-[50%]', // ST
+  'top-[25%] left-[20%]', // RW
+  'top-[25%] left-[80%]', // LW
+  'top-[45%] left-[50%]', // CDM
+  'top-[40%] left-[25%]', // CAM
+  'top-[40%] left-[75%]', // CM
+  'top-[70%] left-[15%]', // RB
+  'top-[75%] left-[40%]', // CB
+  'top-[75%] left-[60%]', // CB
+  'top-[70%] left-[85%]', // LB
+  'top-[88%] left-[50%]', // GK
+]
+
+const players = computed(() => {
+  return playersStore.totw.map((p, i) => ({
+    id: p.player.id,
+    name: p.player.name.split(' ').pop(), // Last name only for UI
+    pos: positions[i] || 'top-[50%] left-[50%]',
+    role: ['ST', 'RW', 'LW', 'CDM', 'CAM', 'CM', 'RB', 'CB', 'CB', 'LB', 'GK'][i] || 'SUB'
+  }))
+})
 </script>
 
 <template>
@@ -29,7 +48,7 @@ const players = ref([
     </div>
 
     <!-- The Pitch -->
-    <div class="flex-1 relative rounded-3xl bg-emerald-600/20 border-2 border-emerald-500/30 overflow-hidden shadow-inner overflow-hidden">
+    <div class="flex-1 relative rounded-3xl bg-emerald-600/20 border-2 border-emerald-500/30 overflow-hidden shadow-inner">
       <!-- Pitch Grass Pattern -->
       <div class="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(0deg,transparent,transparent_40px,#000_40px,#000_80px)]"></div>
       
@@ -54,10 +73,14 @@ const players = ref([
           <span class="text-[8px] font-black uppercase tracking-tighter whitespace-nowrap">{{ player.name }}</span>
         </div>
       </div>
+      
+      <div v-if="players.length === 0" class="absolute inset-0 flex items-center justify-center">
+         <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Scouting Top Eleven...</p>
+      </div>
     </div>
 
     <div class="mt-4 flex items-center justify-between opacity-40">
-      <span class="text-[8px] font-black uppercase tracking-widest italic">Week 24 Selection</span>
+      <span class="text-[8px] font-black uppercase tracking-widest italic">Live Selection</span>
       <span class="text-[8px] font-black uppercase tracking-widest">Pitches by Bento</span>
     </div>
   </div>

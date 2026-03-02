@@ -9,6 +9,7 @@ import {
   TableCell
 } from '@/components/ui/table'
 import { useStandingsStore } from '@/stores/standings'
+import { isUsingMockData } from '@/lib/api'
 
 const standingsStore = useStandingsStore()
 
@@ -18,10 +19,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col p-5 group/standings">
+  <div class="h-full flex flex-col p-5 group/standings relative">
     <div class="bento-header justify-between flex-row items-center mb-4">
       <div class="flex flex-col">
-        <span class="bento-tag">League</span>
+        <div class="flex items-center gap-2">
+          <span class="bento-tag">League</span>
+          <span v-if="!isUsingMockData()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[7px] font-black text-red-500 uppercase tracking-widest animate-pulse mb-1.5">
+            <span class="w-1 h-1 rounded-full bg-red-500"></span>
+            Live
+          </span>
+          <span v-else class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[7px] font-black text-amber-500 uppercase tracking-widest mb-1.5">
+            Preview Mode
+          </span>
+        </div>
         <h2 class="bento-title uppercase">Live Standings</h2>
       </div>
       <div class="w-8 h-8 rounded-xl bg-muted/50 flex items-center justify-center border border-border">
@@ -29,7 +39,20 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto custom-scrollbar">
+    <div v-if="standingsStore.error && !isUsingMockData()" class="flex-1 flex flex-col items-center justify-center text-center p-4">
+      <div class="text-2xl mb-2">⚠️</div>
+      <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-relaxed">
+        {{ standingsStore.error }}
+      </p>
+      <button 
+        @click="standingsStore.fetchStandings()" 
+        class="mt-4 text-[9px] font-black uppercase tracking-widest text-primary hover:underline"
+      >
+        Try Reconnecting
+      </button>
+    </div>
+
+    <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
       <Table>
         <TableHeader>
           <TableRow class="hover:bg-transparent border-none">

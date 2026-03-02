@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { useInjuriesStore } from '@/stores/injuries'
 
-const injuries = ref([
-  { player: 'Kevin De Bruyne', team: 'Man City', status: 'Doubtful', date: 'Mar 15', icon: '🤕' },
-  { player: 'Alisson Becker', team: 'Liverpool', status: 'Out', date: 'Apr 02', icon: '🚑' },
-  { player: 'Martin Ødegaard', team: 'Arsenal', status: 'Out', date: 'Mar 20', icon: '🏥' }
-])
+const injuriesStore = useInjuriesStore()
+
+onMounted(() => {
+  injuriesStore.fetchInjuries()
+})
 </script>
 
 <template>
@@ -20,26 +21,30 @@ const injuries = ref([
       </div>
     </div>
 
-    <div class="flex-1 space-y-3">
+    <div class="flex-1 space-y-3 overflow-y-auto custom-scrollbar">
       <div 
-        v-for="item in injuries" 
-        :key="item.player"
+        v-for="item in injuriesStore.injuries" 
+        :key="item.player.id"
         class="flex items-center gap-4 p-3 rounded-2xl bg-muted/30 border border-border hover:bg-muted/50 transition-colors group/item"
       >
-        <div class="text-2xl">{{ item.icon }}</div>
+        <div class="text-2xl">{{ item.type === 'Missing Fixture' ? '🚑' : '🏥' }}</div>
         <div class="flex-1 min-w-0">
-          <div class="text-[11px] font-black uppercase tracking-tight truncate">{{ item.player }}</div>
-          <div class="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{{ item.team }}</div>
+          <div class="text-[11px] font-black uppercase tracking-tight truncate">{{ item.player.name }}</div>
+          <div class="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{{ item.team.name }}</div>
         </div>
         <div class="flex flex-col items-end shrink-0">
           <span 
             class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full"
-            :class="item.status === 'Out' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'"
+            :class="item.type === 'Missing Fixture' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'"
           >
-            {{ item.status }}
+            {{ item.type }}
           </span>
-          <span class="text-[8px] font-black text-muted-foreground/40 mt-1 uppercase">{{ item.date }}</span>
+          <span class="text-[8px] font-black text-muted-foreground/40 mt-1 uppercase truncate max-w-[60px]">{{ item.reason }}</span>
         </div>
+      </div>
+      
+      <div v-if="injuriesStore.injuries.length === 0" class="flex-1 flex items-center justify-center py-8">
+         <p class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">No records found</p>
       </div>
     </div>
 
@@ -50,3 +55,16 @@ const injuries = ref([
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+</style>
