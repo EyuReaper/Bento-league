@@ -1,12 +1,33 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, watch } from 'vue'
 import { useFixturesStore } from '@/stores/fixtures'
+import { useLeagueStore } from '@/stores/league'
 
 const fixturesStore = useFixturesStore()
+const leagueStore = useLeagueStore()
+
+let pollingInterval: any = null
+
+const refreshData = () => {
+  fixturesStore.fetchHeroMatch(leagueStore.currentLeagueId, leagueStore.currentSeason)
+}
 
 onMounted(() => {
-  fixturesStore.fetchHeroMatch()
+  refreshData()
+  // Poll every 30 seconds for live match updates
+  pollingInterval = setInterval(refreshData, 30000)
 })
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval)
+})
+
+watch(
+  [() => leagueStore.currentLeagueId, () => leagueStore.currentSeason],
+  () => {
+    refreshData()
+  }
+)
 
 const match = computed(() => fixturesStore.heroMatch)
 const isLoading = computed(() => fixturesStore.loading)

@@ -1,12 +1,33 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePlayersStore } from '@/stores/players'
+import { useLeagueStore } from '@/stores/league'
 
 const playersStore = usePlayersStore()
+const leagueStore = useLeagueStore()
+
+let pollingInterval: any = null
+
+const refreshData = () => {
+  playersStore.fetchTopPlayers(leagueStore.currentLeagueId, leagueStore.currentSeason)
+}
 
 onMounted(() => {
-  playersStore.fetchTopPlayers()
+  refreshData()
+  // Poll every hour (players data is stable)
+  pollingInterval = setInterval(refreshData, 3600000)
 })
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval)
+})
+
+watch(
+  [() => leagueStore.currentLeagueId, () => leagueStore.currentSeason],
+  () => {
+    refreshData()
+  }
+)
 
 const player = computed(() => {
   const p = playersStore.potw

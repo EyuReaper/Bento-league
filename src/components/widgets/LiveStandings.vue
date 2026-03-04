@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import {
   Table,
   TableHeader,
@@ -9,13 +9,35 @@ import {
   TableCell
 } from '@/components/ui/table'
 import { useStandingsStore } from '@/stores/standings'
+import { useLeagueStore } from '@/stores/league'
 import { isUsingMockData } from '@/lib/api'
 
 const standingsStore = useStandingsStore()
+const leagueStore = useLeagueStore()
+
+let pollingInterval: any = null
+
+const refreshData = () => {
+  standingsStore.fetchStandings(leagueStore.currentLeagueId, leagueStore.currentSeason)
+}
 
 onMounted(() => {
-  standingsStore.fetchStandings()
+  refreshData()
+  // Poll every 60 seconds to keep data fresh
+  pollingInterval = setInterval(refreshData, 60000)
 })
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval)
+})
+
+// Re-fetch when league or season changes
+watch(
+  [() => leagueStore.currentLeagueId, () => leagueStore.currentSeason],
+  () => {
+    refreshData()
+  }
+)
 </script>
 
 <template>
@@ -45,7 +67,7 @@ onMounted(() => {
         {{ standingsStore.error }}
       </p>
       <button 
-        @click="standingsStore.fetchStandings()" 
+        @click="refreshData" 
         class="mt-4 text-[9px] font-black uppercase tracking-widest text-primary hover:underline"
       >
         Try Reconnecting

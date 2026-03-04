@@ -7,10 +7,10 @@ export const useFixturesStore = defineStore('fixtures', () => {
     const nextMatch = ref<any>(null);
     const loading = ref(false);
 
-    async function fetchHeroMatch() {
+    async function fetchHeroMatch(leagueId: string = '39', season: string = '2025') {
         loading.value = true;
         try {
-            const data = await apiRequest<any[]>('fixtures', { league: '39', live: 'all' });
+            const data = await apiRequest<any[]>('fixtures', { league: leagueId, season: season, live: 'all' });
             heroMatch.value = data[0] || null;
         } catch (error) {
             console.error('Failed to fetch match:', error);
@@ -19,10 +19,10 @@ export const useFixturesStore = defineStore('fixtures', () => {
         }
     }
 
-    async function fetchNextMatch() {
+    async function fetchNextMatch(leagueId: string = '39', season: string = '2025') {
         loading.value = true;
         try {
-            const data = await apiRequest<any[]>('fixtures', { league: '39', next: '1' });
+            const data = await apiRequest<any[]>('fixtures', { league: leagueId, season: season, next: '1' });
             nextMatch.value = data[0] || null;
         } catch (error) {
             console.error('Failed to fetch next match:', error);

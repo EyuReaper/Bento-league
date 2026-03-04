@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useStandingsStore } from '@/stores/standings'
+import { useLeagueStore } from '@/stores/league'
 
 const standingsStore = useStandingsStore()
+const leagueStore = useLeagueStore()
 
 onMounted(() => {
   if (standingsStore.standings.length === 0) {
-    standingsStore.fetchStandings()
+    standingsStore.fetchStandings(leagueStore.currentLeagueId, leagueStore.currentSeason)
   }
 })
+<script>
 
 // Derive top team's stats for the season view
 const topTeam = computed(() => standingsStore.getStandings[0] || null)
@@ -35,7 +38,7 @@ const stats = computed(() => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col p-5 relative group/season overflow-hidden">
+  <div class="relative flex flex-col h-full p-5 overflow-hidden group/season">
     <div class="flex items-center justify-between mb-6">
       <div class="flex flex-col">
         <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Campaign</h3>
@@ -47,7 +50,7 @@ const stats = computed(() => {
     </div>
 
     <!-- Progress Bar -->
-    <div class="relative h-3 w-full bg-muted/50 rounded-full mb-8 overflow-hidden shadow-inner">
+    <div class="relative w-full h-3 mb-8 overflow-hidden rounded-full shadow-inner bg-muted/50">
       <div 
         class="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/50 to-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_12px_rgba(16,185,129,0.4)]"
         :style="{ width: `${seasonProgress}%` }"
@@ -57,7 +60,7 @@ const stats = computed(() => {
     </div>
 
     <!-- Form Guide -->
-    <div class="flex-1 flex flex-col justify-center">
+    <div class="flex flex-col justify-center flex-1">
       <div class="flex items-center justify-between mb-4">
         <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Recent Form</span>
         <div class="flex gap-1.5" v-if="form.length > 0">
@@ -87,6 +90,6 @@ const stats = computed(() => {
     </div>
 
     <!-- Decoration -->
-    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/5 blur-3xl rounded-full pointer-events-none group-hover/season:bg-primary/10 transition-colors"></div>
+    <div class="absolute w-32 h-32 transition-colors rounded-full pointer-events-none -bottom-6 -right-6 bg-primary/5 blur-3xl group-hover/season:bg-primary/10"></div>
   </div>
 </template>

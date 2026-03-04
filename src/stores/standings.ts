@@ -7,7 +7,7 @@ export const useStandingsStore = defineStore('standings', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  async function fetchStandings(leagueId: string = '39', season: string = '2024') {
+  async function fetchStandings(leagueId: string = '39', season: string = '2025') {
     loading.value = true;
     error.value = null;
     try {

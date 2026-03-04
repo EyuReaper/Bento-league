@@ -1,12 +1,33 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, watch } from 'vue'
 import { useTransfersStore } from '@/stores/transfers'
+import { useLeagueStore } from '@/stores/league'
 
 const transfersStore = useTransfersStore()
+const leagueStore = useLeagueStore()
+
+let pollingInterval: any = null
+
+const refreshData = () => {
+  transfersStore.fetchLatestTransfers(leagueStore.currentLeagueId)
+}
 
 onMounted(() => {
-  transfersStore.fetchLatestTransfers()
+  refreshData()
+  // Poll every 10 minutes
+  pollingInterval = setInterval(refreshData, 600000)
 })
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval)
+})
+
+watch(
+  () => leagueStore.currentLeagueId,
+  () => {
+    refreshData()
+  }
+)
 
 const isLoading = computed(() => transfersStore.loading)
 const transfers = computed(() => transfersStore.getTransfers)

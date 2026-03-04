@@ -1,15 +1,28 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useNewsStore } from '@/stores/news'
 
-const isPlaying = ref(true)
-const station = ref('Bento Sports FM')
-const show = ref('The Mid-Week Review')
+const newsStore = useNewsStore()
+
+onMounted(() => {
+  if (newsStore.news.length === 0) {
+    newsStore.fetchNews()
+  }
+})
+
+const featuredNews = computed(() => newsStore.news[0] || null)
+
+const isPlaying = computed(() => !newsStore.loading && !!featuredNews.value)
+const station = computed(() => featuredNews.value?.source || 'Bento Sports FM')
+const show = computed(() => featuredNews.value?.text || 'The Mid-Week Review')
 </script>
 
 <template>
   <div class="h-full flex flex-col p-4 relative group/radio overflow-hidden">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Live Broadcast</h3>
+      <h3 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+        {{ featuredNews ? 'Breaking News' : 'Live Broadcast' }}
+      </h3>
       <div v-if="isPlaying" class="flex gap-0.5 items-end h-3">
         <div class="w-0.5 bg-primary animate-[bounce_1s_infinite_0s]"></div>
         <div class="w-0.5 bg-primary animate-[bounce_1s_infinite_0.2s]"></div>
@@ -36,6 +49,13 @@ const show = ref('The Mid-Week Review')
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes bounce {
+  0%, 100% { height: 4px; }
+  50% { height: 12px; }
+}
+</style>
 
 <style scoped>
 @keyframes bounce {

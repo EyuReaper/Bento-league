@@ -22,7 +22,7 @@ export const mockStandings = [
       country: "England",
       logo: "https://media.api-sports.io/football/leagues/39.png",
       flag: "https://media.api-sports.io/flags/gb.svg",
-      season: 2024,
+      season: 2025,
       standings: [
         [
           { rank: 1, team: { id: 42, name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" }, points: 89, goalsDiff: 62, form: "WWWWW", status: "same", description: "Champions League" },
@@ -64,7 +64,7 @@ export const mockFixtures = [
       country: "England",
       logo: "https://media.api-sports.io/football/leagues/39.png",
       flag: "https://media.api-sports.io/flags/gb.svg",
-      season: 2024,
+      season: 2025,
       round: "Regular Season - 24"
     },
     teams: {

@@ -1,12 +1,33 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import { useInjuriesStore } from '@/stores/injuries'
+import { useLeagueStore } from '@/stores/league'
 
 const injuriesStore = useInjuriesStore()
+const leagueStore = useLeagueStore()
+
+let pollingInterval: any = null
+
+const refreshData = () => {
+  injuriesStore.fetchInjuries(leagueStore.currentLeagueId, leagueStore.currentSeason)
+}
 
 onMounted(() => {
-  injuriesStore.fetchInjuries()
+  refreshData()
+  // Poll every 10 minutes
+  pollingInterval = setInterval(refreshData, 600000)
 })
+
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval)
+})
+
+watch(
+  [() => leagueStore.currentLeagueId, () => leagueStore.currentSeason],
+  () => {
+    refreshData()
+  }
+)
 </script>
 
 <template>

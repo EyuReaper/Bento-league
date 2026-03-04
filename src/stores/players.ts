@@ -7,10 +7,10 @@ export const usePlayersStore = defineStore('players', () => {
   const totw = ref<any[]>([]);
   const loading = ref(false);
 
-  async function fetchTopPlayers() {
+  async function fetchTopPlayers(leagueId: string = '39', season: string = '2025') {
     loading.value = true;
     try {
-      const data = await apiRequest<any[]>('players/topscorers', { league: '39', season: '2024' });
+      const data = await apiRequest<any[]>('players/topscorers', { league: leagueId, season: season });
       if (data.length > 0) {
         potw.value = data[0]; // Top scorer as POTW
         totw.value = data.slice(0, 11); // Top 11 as TOTW placeholder

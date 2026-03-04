@@ -1,10 +1,18 @@
-import { mockLeagues, mockStandings, mockFixtures, mockTransfers } from './mocks';
+import { 
+  mockLeagues, 
+  mockStandings, 
+  mockFixtures, 
+  mockTransfers,
+  mockInjuries,
+  mockPredictions,
+  mockPlayers
+} from './mocks';
 
 const API_KEY = (import.meta.env.VITE_API_FOOTBALL_KEY || '').trim();
 const BASE_URL = import.meta.env.VITE_API_FOOTBALL_URL || 'https://v3.football.api-sports.io';
 
 // Internal state to track if we are currently using mock data due to a failure
-let usingFallbackMocks = !API_KEY || API_KEY.length !== 32;
+let usingFallbackMocks = !API_KEY;
 
 export const isUsingMockData = () => usingFallbackMocks || import.meta.env.VITE_USE_MOCKS === 'true';
 
@@ -20,24 +28,27 @@ const getMockData = (endpoint: string): any => {
 };
 
 export async function apiRequest<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
-  // If we already know we're in fallback mode or key is missing/invalid length, use mocks
+  // If we already know we're in fallback mode or key is missing, use mocks
   if (isUsingMockData()) {
-    if (API_KEY && API_KEY.length !== 32 && !usingFallbackMocks) {
-       console.error(`CRITICAL: Your API Key is ${API_KEY.length} chars. API-Football REQUIRES a 32-char hex key.`);
-       usingFallbackMocks = true;
-    }
     return getMockData(endpoint) as unknown as T;
   }
 
   const url = new URL(`${BASE_URL}/${endpoint}`);
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+  // Automatically detect RapidAPI keys vs direct API-Sports keys
+  const headers: Record<string, string> = {};
+  if (API_KEY.length === 50) {
+    headers['X-RapidAPI-Key'] = API_KEY;
+    headers['X-RapidAPI-Host'] = 'api-football-v1.p.rapidapi.com';
+  } else {
+    headers['x-apisports-key'] = API_KEY;
+  }
   
   try {
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers: {
-        'x-apisports-key': API_KEY,
-      }
+      headers: headers
     });
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -55,7 +66,9 @@ export async function apiRequest<T>(endpoint: string, params: Record<string, str
     console.error(`Endpoint: ${endpoint}`);
     console.error(`Error: ${error.message}`);
     console.warn('Action: Automatically falling back to MOCK DATA.');
-    console.info('Tip: Verify your VITE_API_FOOTBALL_KEY in .env is exactly 32 characters.');
+    console.info('Tip: Your key is not being recognized by the API.');
+    console.info(' - If using API-Sports: Key should be 32 chars hex in "x-apisports-key"');
+    console.info(' - If using RapidAPI: Key should be 50 chars in "X-RapidAPI-Key"');
     console.groupEnd();
     
     usingFallbackMocks = true; // Switch to fallback mode for the rest of the session
